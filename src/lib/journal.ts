@@ -23,7 +23,6 @@ type JournalRow = {
   entry_date: string;
   status: string;
   published_at: string | null;
-  notes: string | null;
 };
 
 const legacyJournalEntries: JournalEntry[] = [
@@ -37,7 +36,7 @@ export const journalEntries = legacyJournalEntries;
 
 function mapJournalEntry(row: JournalRow): JournalEntry {
   const bodyMarkdown = row.body_markdown ?? "";
-  const excerpt = row.notes ?? bodyMarkdown.replace(/[#>*_`\[\]]/g, "").replace(/\s+/g, " ").trim().slice(0, 180);
+  const excerpt = bodyMarkdown.replace(/[#>*_`\[\]]/g, "").replace(/\s+/g, " ").trim().slice(0, 180);
   const dateValue = new Date(`${row.entry_date}T00:00:00`);
   const date = new Intl.DateTimeFormat("en-GB", { day: "2-digit", month: "long", year: "numeric" }).format(dateValue);
 
@@ -59,7 +58,7 @@ export async function getPublishedJournalEntries() {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("journal_entries")
-    .select("id, slug, title, body_markdown, entry_date, status, published_at, notes")
+    .select("id, slug, title, body_markdown, entry_date, status, published_at")
     .eq("status", "published")
     .order("entry_date", { ascending: false });
 
@@ -71,7 +70,7 @@ export async function getPublishedJournalEntryBySlug(slug: string) {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("journal_entries")
-    .select("id, slug, title, body_markdown, entry_date, status, published_at, notes")
+    .select("id, slug, title, body_markdown, entry_date, status, published_at")
     .eq("slug", slug)
     .eq("status", "published")
     .maybeSingle();

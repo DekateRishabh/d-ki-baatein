@@ -1,57 +1,47 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 
 import { ArticleMeta } from "@/components/editorial/article-meta";
 import { Divider } from "@/components/editorial/divider";
 import { EditorialLink } from "@/components/editorial/editorial-link";
 import { SectionLabel } from "@/components/editorial/section-label";
-import { getEssayBySlug, essays } from "@/lib/essays";
-import Image from "next/image";
-
+import MarkdownContent from "@/components/editorial/markdown-content";
 import { EssayToc } from "@/components/essays/essay-toc";
 import { ReadingProgress } from "@/components/essays/reading-progress";
+import { getPublishedEssayBySlug } from "@/lib/essays";
 
-import EssayContent from "@/content/essays/the-things-that-stay.mdx";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 type EssayPageProps = {
-  params: Promise<{
-    slug: string;
-  }>;
+  params: Promise<{ slug: string }>;
 };
-
-export function generateStaticParams() {
-  return essays.map((essay) => ({
-    slug: essay.slug,
-  }));
-}
 
 export async function generateMetadata({
   params,
 }: EssayPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const essay = getEssayBySlug(slug);
+  const essay = await getPublishedEssayBySlug(slug);
 
-  if (!essay) {
-    return {};
-  }
-
-  return {
-    title: essay.title,
-    description: essay.description,
-  };
+  return essay
+    ? {
+        title: essay.title,
+        description: essay.description,
+      }
+    : {};
 }
 
 export default async function EssayPage({ params }: EssayPageProps) {
   const { slug } = await params;
-  const essay = getEssayBySlug(slug);
+  const essay = await getPublishedEssayBySlug(slug);
 
-  if (!essay) {
-    notFound();
-  }
+  if (!essay) notFound();
 
   return (
     <>
       <ReadingProgress />
+
       <article className="essay-page">
         <header className="essay-header">
           <SectionLabel accent="लेख">{essay.category}</SectionLabel>
@@ -69,42 +59,28 @@ export default async function EssayPage({ params }: EssayPageProps) {
         </header>
 
         <div className="essay-layout">
-          <EssayToc
-            items={[
-              {
-                id: "the-room-remembers-before-we-do",
-                label: "The room remembers",
-              },
-              {
-                id: "the-objects-we-carry",
-                label: "The objects we carry",
-              },
-              {
-                id: "a-quiet-form-of-belonging",
-                label: "A quiet form of belonging",
-              },
-              {
-                id: "what-remains",
-                label: "What remains",
-              },
-            ]}
-          />
+          <EssayToc items={[]} />
 
           <div className="essay-content">
-            <figure className="essay-cover-image">
-              <Image
-                src="/images/essays/the-things-that-stay.jpg"
-                alt="A quiet room in afternoon light"
-                fill
-                priority
-                sizes="(max-width: 760px) 100vw, 720px"
-              />
+            {essay.coverUrl && (
+              <figure className="essay-cover-image">
+                <Image
+                  key={essay.coverUrl}
+                  src={essay.coverUrl}
+                  alt={essay.coverAlt ?? essay.title}
+                  fill
+                  priority
+                  sizes="(max-width: 760px) 100vw, 720px"
+                />
 
-              <figcaption>A room in the afternoon</figcaption>
-            </figure>
+                {essay.coverCaption && (
+                  <figcaption>{essay.coverCaption}</figcaption>
+                )}
+              </figure>
+            )}
 
             <div className="essay-body">
-              {slug === "the-things-that-stay" && <EssayContent />}
+              <MarkdownContent content={essay.bodyMarkdown} />
             </div>
 
             <Divider label="End of essay" />
@@ -119,7 +95,9 @@ export default async function EssayPage({ params }: EssayPageProps) {
                 details that shape a life.
               </p>
 
-              <EditorialLink href="/essays">Browse all essays</EditorialLink>
+              <EditorialLink href="/essays">
+                Browse all essays
+              </EditorialLink>
             </section>
           </div>
         </div>

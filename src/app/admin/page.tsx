@@ -1,6 +1,13 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
+async function signOut() {
+  "use server";
+  const supabase = await createClient();
+  await supabase.auth.signOut();
+  redirect("/admin/login");
+}
+
 export default async function AdminDashboardPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -31,6 +38,9 @@ export default async function AdminDashboardPage() {
           <a href="/admin/media">Media</a>
           <a href="/admin/settings">Settings</a>
         </nav>
+        <form action={signOut} className="logout-form">
+          <button type="submit">Log out</button>
+        </form>
       </aside>
 
       <section className="admin-content">

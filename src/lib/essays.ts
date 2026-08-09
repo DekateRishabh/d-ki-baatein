@@ -18,14 +18,39 @@ export type Essay = {
 };
 
 type EssayRow = {
-  id: string; slug: string; title: string; subtitle: string | null; excerpt: string | null; body_markdown: string | null; reading_time_minutes: number | null; published_at: string | null; updated_at: string;
-  cover_media: { public_url: string | null; caption: string | null; alt_text: string | null } | null;
+  id: string;
+  slug: string;
+  title: string;
+  subtitle: string | null;
+  excerpt: string | null;
+  body_markdown: string | null;
+  reading_time_minutes: number | null;
+  published_at: string | null;
+  updated_at: string;
+  cover_media: { public_url: string | null; caption: string | null; alt_text: string | null }[] | null;
 };
 
 function mapEssay(row: EssayRow): Essay {
   const date = row.published_at ?? row.updated_at;
   const formatDate = (value: string) => new Intl.DateTimeFormat("en-GB", { day: "2-digit", month: "long", year: "numeric" }).format(new Date(value));
-  return { id: row.id, slug: row.slug, title: row.title, description: row.excerpt ?? row.subtitle ?? "", type: "Essay", readingTime: `${row.reading_time_minutes ?? 1} min read`, date: formatDate(date), updated: formatDate(row.updated_at), category: "Essay", tags: [], bodyMarkdown: row.body_markdown ?? "", coverUrl: row.cover_media?.public_url ?? undefined, coverCaption: row.cover_media?.caption ?? undefined, coverAlt: row.cover_media?.alt_text ?? undefined };
+  const cover = row.cover_media?.[0];
+
+  return {
+    id: row.id,
+    slug: row.slug,
+    title: row.title,
+    description: row.excerpt ?? row.subtitle ?? "",
+    type: "Essay",
+    readingTime: `${row.reading_time_minutes ?? 1} min read`,
+    date: formatDate(date),
+    updated: formatDate(row.updated_at),
+    category: "Essay",
+    tags: [],
+    bodyMarkdown: row.body_markdown ?? "",
+    coverUrl: cover?.public_url ?? undefined,
+    coverCaption: cover?.caption ?? undefined,
+    coverAlt: cover?.alt_text ?? undefined,
+  };
 }
 
 const essaySelect = "id, slug, title, subtitle, excerpt, body_markdown, reading_time_minutes, published_at, updated_at, cover_media:media_assets!essays_cover_media_id_fkey(public_url, caption, alt_text)";

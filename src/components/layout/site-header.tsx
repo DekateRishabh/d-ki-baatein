@@ -28,6 +28,8 @@ export function SiteHeader() {
           ? "dark"
           : "light";
 
+    // The initial theme is read from browser storage after hydration.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setTheme(initialTheme);
     document.documentElement.dataset.theme = initialTheme;
   }, []);
@@ -38,38 +40,17 @@ export function SiteHeader() {
     document.documentElement.dataset.theme = nextTheme;
     window.localStorage.setItem("theme", nextTheme);
   }
+
   return (
     <header className="site-header">
       <Link href="/" className="brand-group" aria-label="D Ki Baatein home">
-        <Image
-          src="/images/logo.png"
-          alt="D Ki Baatein logo"
-          width={120}
-          height={72}
-          priority
-          className="brand-logo"
-        />
-
-        <span className="brand-copy">
-          <span className="brand-name">D Ki Baatein</span>
-          <span className="brand-description">A personal library</span>
-        </span>
+        <Image src="/images/logo.png" alt="D Ki Baatein logo" width={120} height={72} priority className="brand-logo" />
+        <span className="brand-copy"><span className="brand-name">D Ki Baatein</span><span className="brand-description">A personal library</span></span>
       </Link>
-
       <nav className="desktop-navigation" aria-label="Main navigation">
-        {navigation.map((item) => (
-          <Link key={item.href} href={item.href}>
-            {item.label}
-          </Link>
-        ))}
+        {navigation.map((item) => <Link key={item.href} href={item.href}>{item.label}</Link>)}
       </nav>
-
-      <button
-        type="button"
-        className="theme-button"
-        aria-label="Toggle light and dark theme"
-        onClick={toggleTheme}
-      >
+      <button type="button" className="theme-button" aria-label="Toggle light and dark theme" onClick={toggleTheme}>
         {theme === "light" ? <MoonStar size={16} /> : <SunMedium size={16} />}
       </button>
     </header>

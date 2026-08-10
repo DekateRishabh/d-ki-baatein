@@ -25,14 +25,13 @@ export type PublicPhotographyCollection = {
 
 function normalizePublicUrl(value: string) {
   const trimmed = value.trim();
-  const withoutLeadingSlash =
-    trimmed.startsWith("/https://") || trimmed.startsWith("/http://")
-      ? trimmed.slice(1)
-      : trimmed;
-  if (withoutLeadingSlash.startsWith("https://") || withoutLeadingSlash.startsWith("http://")) {
-    return withoutLeadingSlash;
+  if (trimmed.startsWith("/https://") || trimmed.startsWith("/http://")) {
+    return trimmed.slice(1);
   }
-  return withoutLeadingSlash.startsWith("/") ? withoutLeadingSlash : `/${withoutLeadingSlash}`;
+  if (trimmed.startsWith("https://") || trimmed.startsWith("http://") || trimmed.startsWith("/")) {
+    return trimmed;
+  }
+  return `/${trimmed}`;
 }
 
 function slugify(value: string) {

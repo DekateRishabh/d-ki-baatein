@@ -17,6 +17,12 @@ export type Essay = {
   coverAlt?: string;
 };
 
+type CoverMedia = {
+  public_url: string | null;
+  caption: string | null;
+  alt_text: string | null;
+};
+
 type EssayRow = {
   id: string;
   slug: string;
@@ -27,13 +33,21 @@ type EssayRow = {
   reading_time_minutes: number | null;
   published_at: string | null;
   updated_at: string;
-  cover_media: { public_url: string | null; caption: string | null; alt_text: string | null }[] | null;
+  cover_media: CoverMedia | CoverMedia[] | null;
 };
 
 function mapEssay(row: EssayRow): Essay {
   const date = row.published_at ?? row.updated_at;
-  const formatDate = (value: string) => new Intl.DateTimeFormat("en-GB", { day: "2-digit", month: "long", year: "numeric" }).format(new Date(value));
-  const cover = row.cover_media?.[0];
+  const formatDate = (value: string) =>
+    new Intl.DateTimeFormat("en-GB", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    }).format(new Date(value));
+
+  const cover = Array.isArray(row.cover_media)
+    ? row.cover_media[0]
+    : row.cover_media;
 
   return {
     id: row.id,
@@ -57,14 +71,23 @@ const essaySelect = "id, slug, title, subtitle, excerpt, body_markdown, reading_
 
 export async function getPublishedEssays() {
   const supabase = await createClient();
-  const { data, error } = await supabase.from("essays").select(essaySelect).eq("status", "published").order("published_at", { ascending: false });
+  const { data, error } = await supabase
+    .from("essays")
+    .select(essaySelect)
+    .eq("status", "published")
+    .order("published_at", { ascending: false });
   if (error) throw new Error(error.message);
   return (data as EssayRow[]).map(mapEssay);
 }
 
 export async function getPublishedEssayBySlug(slug: string) {
   const supabase = await createClient();
-  const { data, error } = await supabase.from("essays").select(essaySelect).eq("slug", slug).eq("status", "published").maybeSingle();
+  const { data, error } = await supabase
+    .from("essays")
+    .select(essaySelect)
+    .eq("slug", slug)
+    .eq("status", "published")
+    .maybeSingle();
   if (error) throw new Error(error.message);
   return data ? mapEssay(data as EssayRow) : null;
 }

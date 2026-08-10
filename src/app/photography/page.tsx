@@ -10,10 +10,11 @@ export const metadata: Metadata = {
 };
 
 export default async function PhotographyPage() {
-  const fallbackCollections = getPhotographyCollections();
+  const fallbackFilters = getPhotographyCollections();
   const content = await getPublicPhotographyContent();
   const hasPublishedContent = content.photographs !== photographs;
-  const collections = hasPublishedContent ? content.collections : fallbackCollections;
+  const cards = hasPublishedContent ? content.collections : photographyCollections;
+  const filters = hasPublishedContent ? content.collections.map((collection) => collection.title) : fallbackFilters;
   const visiblePhotographs = hasPublishedContent ? content.photographs : photographs;
 
   return (
@@ -25,9 +26,9 @@ export default async function PhotographyPage() {
       </header>
       <section className="photography-collections" aria-labelledby="collections-title">
         <div className="section-label-row"><span className="section-label-accent">Collections</span><span className="section-label-line" /><span className="section-label-text">Ways of noticing</span></div>
-        <div className="photography-collection-list">{(hasPublishedContent ? content.collections : photographyCollections).map((collection) => <article key={collection.slug} className="photography-collection-card"><p className="section-label">{collection.title}</p><h2 id="collections-title">{collection.title}</h2><p>{collection.description}</p></article>)}</div>
+        <div className="photography-collection-list">{cards.map((collection) => <article key={collection.slug} className="photography-collection-card"><p className="section-label">{collection.title}</p><h2 id="collections-title">{collection.title}</h2><p>{collection.description}</p></article>)}</div>
       </section>
-      <section className="photography-browser-section" aria-label="Photographs"><PhotographyBrowser photographs={visiblePhotographs} collections={collections} /></section>
+      <section className="photography-browser-section" aria-label="Photographs"><PhotographyBrowser photographs={visiblePhotographs} collections={filters} /></section>
       <style>{`.photography-page{position:relative;isolation:isolate}.photography-intro,.photography-collections{position:relative;z-index:2}.photography-intro{margin-inline:auto;padding-block:clamp(3rem,8vw,7rem) clamp(2.5rem,5vw,5rem);text-align:left}.photography-intro h1{max-width:11ch;margin-block:.75rem 1.25rem}.photography-intro-copy{max-width:38rem;margin:0}.photography-collections{margin-block:0 clamp(4rem,9vw,8rem)}.photography-browser-section{position:relative;z-index:1;clear:both;min-height:1px}@media (max-width:760px){.photography-intro{padding-block:2.5rem 3rem}.photography-intro h1{max-width:14ch}.photography-collections{margin-bottom:4rem}}`}</style>
     </main>
   );

@@ -2,14 +2,19 @@ import { createClient } from "@/lib/supabase/server";
 import {
   getPhotographyCollections,
   photographs as staticPhotographs,
+  photographyCollections as staticCollections,
 } from "@/lib/photography";
 
 type StaticPhotograph = (typeof staticPhotographs)[number];
-type StaticCollection = ReturnType<typeof getPhotographyCollections>[number];
+export type PublicPhotographyCollection = {
+  slug: string;
+  title: string;
+  description: string;
+};
 
 export type PublicPhotographyContent = {
   photographs: StaticPhotograph[];
-  collections: StaticCollection[];
+  collections: PublicPhotographyCollection[];
 };
 
 type SupabaseMedia = {
@@ -42,7 +47,10 @@ function first<T>(value: T | T[] | null): T | null {
 }
 
 function fallback(): PublicPhotographyContent {
-  return { photographs: staticPhotographs, collections: getPhotographyCollections() };
+  return {
+    photographs: staticPhotographs,
+    collections: staticCollections,
+  };
 }
 
 export async function getPublicPhotographyContent(): Promise<PublicPhotographyContent> {
@@ -74,8 +82,17 @@ export async function getPublicPhotographyContent(): Promise<PublicPhotographyCo
     );
 
     if (!photographs.length) return fallback();
-    return { photographs, collections: collections.map((collection) => ({ slug: collection.slug, title: collection.title, description: collection.description ?? "" })) };
+    return {
+      photographs,
+      collections: collections.map((collection) => ({
+        slug: collection.slug,
+        title: collection.title,
+        description: collection.description ?? "",
+      })),
+    };
   } catch {
     return fallback();
   }
 }
+
+export { getPhotographyCollections };

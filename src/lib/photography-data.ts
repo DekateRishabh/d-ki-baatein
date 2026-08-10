@@ -25,8 +25,9 @@ export type PublicPhotographyCollection = {
 
 function normalizePublicUrl(value: string) {
   const trimmed = value.trim();
-  if (/^https?:\/\//i.test(trimmed)) return trimmed.replace(/^\/+(?=https?:\/\/)/i, "");
-  return trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
+  const withoutLeadingSlash = trimmed.replace(/^\\/+?(?=https?:\\/\\/)/i, "");
+  if (/^https?:\\/\\//i.test(withoutLeadingSlash)) return withoutLeadingSlash;
+  return withoutLeadingSlash.startsWith("/") ? withoutLeadingSlash : `/${withoutLeadingSlash}`;
 }
 
 function slugify(value: string) {

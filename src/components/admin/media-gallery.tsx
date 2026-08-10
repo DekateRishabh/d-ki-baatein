@@ -98,7 +98,7 @@ export default function MediaGallery({ media }: { media: MediaItem[] }) {
                 <p className="section-label">
                   {item.kind} · {item.is_public ? "public" : "private"}
                 </p>
-                <p>{item.alt_text ? `Alt: ${item.alt_text}` : "Alt: Not set"}</p>
+                <p className={styles.altText}>{item.alt_text ?? "Not set"}</p>
                 <p>{item.caption ?? item.mime_type ?? "No caption"}</p>
                 <small>{formatSize(item.size_bytes)} · {formatDate(item.created_at)}</small>
                 <div className={styles.actions}>

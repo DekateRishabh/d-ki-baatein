@@ -103,15 +103,26 @@
 
 .actions a,
 .actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   min-height: 34px;
+  box-sizing: border-box;
   padding: 0 12px;
-  border: 1px solid var(--border-dark, #aaa198);
-  border-radius: 999px;
-  background: transparent;
-  color: var(--ink, #171717);
+  border: 1px solid var(--ink, #171717);
+  border-radius: 6px;
+  background: var(--ink, #171717);
+  color: var(--paper, #f5f0e9);
+  text-decoration: none;
   font: 10px var(--font-plex-mono, monospace);
   letter-spacing: 0.12em;
   text-transform: uppercase;
+}
+
+.actions a:hover,
+.actions button:hover {
+  background: transparent;
+  color: var(--ink, #171717);
 }
 
 .actions button {

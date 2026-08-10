@@ -1,0 +1,157 @@
+.picker {
+  display: grid;
+  gap: 24px;
+  max-width: 1180px;
+  margin-top: 28px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.card {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--border, #d4cec5);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.42);
+  cursor: pointer;
+}
+
+.card:has(input[type="checkbox"]:checked) {
+  border-color: var(--ink, #171717);
+  box-shadow: 0 0 0 2px rgba(23, 23, 23, 0.08);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-width: 0;
+}
+
+.checkbox {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--ink, #171717);
+  cursor: pointer;
+}
+
+.preview {
+  overflow: hidden;
+  aspect-ratio: 16 / 10;
+  border-radius: 11px;
+  background: var(--paper-deep, #e8e1d8);
+}
+
+.preview img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.preview span {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  color: var(--ink-soft, #6f6a64);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.title {
+  overflow: hidden;
+  color: var(--ink, #171717);
+  font-family: var(--font-cormorant, Georgia, serif);
+  font-size: 23px;
+  font-weight: 600;
+  line-height: 1.05;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.filename {
+  overflow: hidden;
+  color: var(--ink-soft, #6f6a64);
+  font-family: var(--font-plex-mono, monospace);
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fields {
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr);
+  gap: 8px;
+}
+
+.fields input,
+.fields textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--border, #d4cec5);
+  border-radius: 8px;
+  padding: 9px 10px;
+  background: rgba(255, 255, 255, 0.65);
+  color: var(--ink, #171717);
+  font: inherit;
+}
+
+.fields textarea {
+  min-height: 58px;
+  resize: vertical;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-top: 4px;
+}
+
+.actions button,
+.actions a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 0 15px;
+  border: 1px solid var(--ink, #171717);
+  border-radius: 6px;
+  background: var(--ink, #171717);
+  color: var(--paper, #f5f0e9);
+  text-decoration: none;
+  font: 10px var(--font-plex-mono, monospace);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.actions a {
+  background: transparent;
+  color: var(--ink, #171717);
+}
+
+@media (max-width: 980px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .fields {
+    grid-template-columns: 1fr;
+  }
+}

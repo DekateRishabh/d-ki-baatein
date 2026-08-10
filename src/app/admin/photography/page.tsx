@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
@@ -65,7 +66,6 @@ async function saveCollection(formData: FormData) {
   const id = String(formData.get("id") ?? "");
   const title = String(formData.get("title") ?? "").trim();
   if (!id || !title) throw new Error("Collection id and title are required.");
-
   const status = String(formData.get("status") ?? "draft");
   const { error: updateError } = await supabase.from("photo_collections").update({
     title,
@@ -77,7 +77,6 @@ async function saveCollection(formData: FormData) {
     published_at: status === "published" ? new Date().toISOString() : null,
   }).eq("id", id);
   if (updateError) throw new Error(updateError.message);
-
   const mediaIds = formData.getAll("media_id").map(String);
   const { error: deleteError } = await supabase.from("photo_collection_items").delete().eq("collection_id", id);
   if (deleteError) throw new Error(deleteError.message);
@@ -95,25 +94,44 @@ async function saveCollection(formData: FormData) {
   revalidatePath("/photography");
 }
 
+async function archiveCollection(formData: FormData) {
+  "use server";
+  const supabase = await requireAdmin();
+  const id = String(formData.get("id") ?? "");
+  const status = String(formData.get("status") ?? "archived") === "archived" ? "draft" : "archived";
+  const { error } = await supabase.from("photo_collections").update({ status, published_at: null }).eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin/photography");
+  revalidatePath("/photography");
+}
+
 export default async function PhotographyAdminPage() {
   const supabase = await requireAdmin();
   const [{ data: collections }, { data: media }] = await Promise.all([
-    supabase.from("photo_collections").select("id, slug, title, description, location, collection_date, status, photo_collection_items(media_id, sort_order, caption, media_assets(id, filename, public_url, alt_text))").order("created_at", { ascending: false }),
+    supabase.from("photo_collections").select("id, slug, title, description, location, collection_date, status, photo_collection_items(media_id, sort_order, caption, media_assets(id, filename, public_url, alt_text, caption))").order("created_at", { ascending: false }),
     supabase.from("media_assets").select("id, filename, public_url, alt_text, caption").eq("kind", "image").order("created_at", { ascending: false }),
   ]);
-
   const typedCollections = (collections ?? []) as Collection[];
   const typedMedia = (media ?? []) as Media[];
 
   return (
     <main className="admin-page">
+      <nav className="admin-page-nav" aria-label="Admin navigation">
+        <Link href="/admin">Dashboard</Link>
+        <Link href="/admin/photography" aria-current="page">Photography</Link>
+        <Link href="/admin/media">Media library</Link>
+        <Link href="/admin/media/upload">Upload media</Link>
+      </nav>
       <header className="admin-page-header">
         <div>
           <p className="section-label">Admin / Photography</p>
           <h1>Photography collections</h1>
           <p>Build and publish the collections shown on the public Photography archive.</p>
         </div>
-        <Link href="/admin/media/upload" className="admin-button">Upload photographs</Link>
+        <div className="admin-header-actions">
+          <Link href="/photography" className="admin-button">View public archive</Link>
+          <Link href="/admin/media/upload" className="admin-button">Upload photographs</Link>
+        </div>
       </header>
 
       <section className="admin-form-card">
@@ -132,10 +150,15 @@ export default async function PhotographyAdminPage() {
       <section className="admin-stack">
         {typedCollections.length === 0 ? <div className="admin-empty"><h2>No collections yet.</h2><p>Create your first collection above, then attach images from the media library.</p></div> : typedCollections.map((collection) => {
           const attached = new Map(collection.photo_collection_items.map((item) => [item.media_id, item]));
+          const isArchived = collection.status === "archived";
           return (
             <form key={collection.id} action={saveCollection} className="admin-form-card">
               <input type="hidden" name="id" value={collection.id} />
               <div className="admin-section-heading"><h2>{collection.title}</h2><span>{collection.status}</span></div>
+              <div className="admin-collection-actions">
+                <Link href={`/photography?collection=${collection.slug}`} className="admin-text-link">Preview collection →</Link>
+                <button formAction={archiveCollection} name="status" value={collection.status} className="admin-text-button">{isArchived ? "Restore collection" : "Archive collection"}</button>
+              </div>
               <div className="admin-form-grid">
                 <label>Title<input name="title" defaultValue={collection.title} required /></label>
                 <label>Slug<input name="slug" defaultValue={collection.slug} required /></label>
@@ -144,7 +167,7 @@ export default async function PhotographyAdminPage() {
                 <label>Status<select name="status" defaultValue={collection.status}><option value="draft">Draft</option><option value="published">Published</option><option value="private">Private</option><option value="archived">Archived</option></select></label>
                 <label className="admin-form-wide">Description<textarea name="description" rows={3} defaultValue={collection.description ?? ""} /></label>
               </div>
-              <div className="admin-media-picker"><div className="admin-section-heading"><h3>Photographs</h3><span>Select, order, caption</span></div>{typedMedia.map((asset) => { const item = attached.get(asset.id); return <label key={asset.id} className="admin-media-option"><input type="checkbox" name="media_id" value={asset.id} defaultChecked={Boolean(item)} /><span>{asset.filename}</span><input name={`sort_order_${asset.id}`} type="number" defaultValue={item?.sort_order ?? 0} aria-label={`Order for ${asset.filename}`} /><input name={`caption_${asset.id}`} defaultValue={item?.caption ?? asset.caption ?? ""} placeholder="Caption" aria-label={`Caption for ${asset.filename}`} /></label>; })}</div>
+              <div className="admin-media-picker"><div className="admin-section-heading"><h3>Photographs</h3><span>Select, order, caption</span></div>{typedMedia.map((asset) => { const item = attached.get(asset.id); return <label key={asset.id} className="admin-media-option">{asset.public_url ? <Image src={asset.public_url} alt={asset.alt_text ?? asset.filename} width={72} height={54} className="admin-media-thumbnail" /> : <span className="admin-media-thumbnail-placeholder">No preview</span>}<input type="checkbox" name="media_id" value={asset.id} defaultChecked={Boolean(item)} /><span>{asset.filename}</span><input name={`sort_order_${asset.id}`} type="number" defaultValue={item?.sort_order ?? 0} aria-label={`Order for ${asset.filename}`} /><input name={`caption_${asset.id}`} defaultValue={item?.caption ?? asset.caption ?? ""} placeholder="Caption" aria-label={`Caption for ${asset.filename}`} /></label>; })}</div>
               <div className="admin-form-actions"><button type="submit" className="admin-button">Save collection</button></div>
             </form>
           );

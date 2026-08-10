@@ -8,6 +8,7 @@ import { SectionLabel } from "@/components/editorial/section-label";
 import MarkdownContent from "@/components/editorial/markdown-content";
 import { getPublishedJournalEntries, getPublishedJournalEntryBySlug } from "@/lib/journal";
 import { JournalNavigation } from "@/components/journal/journal-navigation";
+import styles from "./journal-media-gallery.module.css";
 
 type JournalPageProps = { params: Promise<{ slug: string }> };
 
@@ -86,11 +87,11 @@ export default async function JournalEntryPage({ params }: JournalPageProps) {
       )}
 
       {photos.length > 0 && (
-        <section className="journal-media-gallery" aria-label="Journal photographs">
+        <section className={styles.gallery} aria-label="Journal photographs">
           <SectionLabel>Photographs</SectionLabel>
-          <div className="journal-media-gallery-grid">
+          <div className={styles.galleryGrid}>
             {photos.map((photo, index) => (
-              <figure key={`${photo.url}-${index}`} className="journal-media-gallery-item">
+              <figure key={`${photo.url}-${index}`} className={styles.item}>
                 <img src={photo.url} alt={photo.alt} />
                 {photo.caption && <figcaption>{photo.caption}</figcaption>}
               </figure>

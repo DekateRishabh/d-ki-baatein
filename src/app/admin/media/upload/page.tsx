@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { uploadMedia } from "@/lib/admin/media-actions";
+import UploadSubmitButton from "@/components/admin/upload-submit-button";
 
 export default function UploadMediaPage() {
   return (
@@ -31,7 +32,7 @@ export default function UploadMediaPage() {
           <input name="is_public" type="checkbox" /> Public media
         </label>
         <div>
-          <button type="submit">Upload file</button>
+          <UploadSubmitButton />
           <Link href="/admin/media">Cancel</Link>
         </div>
       </form>

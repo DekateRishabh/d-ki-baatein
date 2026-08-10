@@ -25,8 +25,13 @@ export type PublicPhotographyCollection = {
 
 function normalizePublicUrl(value: string) {
   const trimmed = value.trim();
-  const withoutLeadingSlash = trimmed.replace(/^\\/+?(?=https?:\\/\\/)/i, "");
-  if (/^https?:\\/\\//i.test(withoutLeadingSlash)) return withoutLeadingSlash;
+  const withoutLeadingSlash =
+    trimmed.startsWith("/https://") || trimmed.startsWith("/http://")
+      ? trimmed.slice(1)
+      : trimmed;
+  if (withoutLeadingSlash.startsWith("https://") || withoutLeadingSlash.startsWith("http://")) {
+    return withoutLeadingSlash;
+  }
   return withoutLeadingSlash.startsWith("/") ? withoutLeadingSlash : `/${withoutLeadingSlash}`;
 }
 

@@ -1,4 +1,9 @@
+import createMDX from "@next/mdx";
 import type { NextConfig } from "next";
+
+const withMDX = createMDX({
+  extension: /\.mdx?$/,
+});
 
 const nextConfig: NextConfig = {
   experimental: {
@@ -17,4 +22,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withMDX(nextConfig);

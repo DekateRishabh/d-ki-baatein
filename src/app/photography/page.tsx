@@ -21,13 +21,96 @@ export default function PhotographyPage() {
       <header className="photography-intro">
         <p className="section-label">Photography archive</p>
         <h1>Ordinary light, noticed slowly.</h1>
-        <p>A collection of photographs from journeys, familiar rooms, quiet afternoons, and places that stayed in memory.</p>
+        <p className="photography-intro-copy">
+          A collection of photographs from journeys, familiar rooms, quiet
+          afternoons, and places that stayed in memory.
+        </p>
       </header>
-      <section className="photography-collections" aria-labelledby="collections-title">
-        <div className="section-label-row"><span className="section-label-accent">Collections</span><span className="section-label-line" /><span className="section-label-text">Ways of noticing</span></div>
-        <div className="photography-collection-list">{photographyCollections.map((collection) => <article key={collection.slug} className="photography-collection-card"><p className="section-label">{collection.title}</p><h2 id="collections-title">{collection.title}</h2><p>{collection.description}</p></article>)}</div>
+
+      <section
+        className="photography-collections"
+        aria-labelledby="collections-title"
+      >
+        <div className="section-label-row">
+          <span className="section-label-accent">Collections</span>
+          <span className="section-label-line" />
+          <span className="section-label-text">Ways of noticing</span>
+        </div>
+
+        <div className="photography-collection-list">
+          {photographyCollections.map((collection) => (
+            <article
+              key={collection.slug}
+              className="photography-collection-card"
+            >
+              <p className="section-label">{collection.title}</p>
+              <h2 id="collections-title">{collection.title}</h2>
+              <p>{collection.description}</p>
+            </article>
+          ))}
+        </div>
       </section>
-      <PhotographyBrowser photographs={photographs} collections={collections} />
+
+      <section className="photography-browser-section" aria-label="Photographs">
+        <PhotographyBrowser
+          photographs={photographs}
+          collections={collections}
+        />
+      </section>
+
+      <style>{`
+        .photography-page {
+          position: relative;
+          isolation: isolate;
+        }
+
+        .photography-intro,
+        .photography-collections {
+          position: relative;
+          z-index: 2;
+        }
+
+        .photography-intro {
+          margin-inline: auto;
+          padding-block: clamp(3rem, 8vw, 7rem) clamp(2.5rem, 5vw, 5rem);
+          text-align: left;
+        }
+
+        .photography-intro h1 {
+          max-width: 11ch;
+          margin-block: 0.75rem 1.25rem;
+        }
+
+        .photography-intro-copy {
+          max-width: 38rem;
+          margin: 0;
+        }
+
+        .photography-collections {
+          margin-block: 0 clamp(4rem, 9vw, 8rem);
+        }
+
+        .photography-browser-section {
+          position: relative;
+          z-index: 1;
+          clear: both;
+          min-height: 1px;
+        }
+
+        @media (max-width: 760px) {
+          .photography-intro {
+            padding-block: 2.5rem 3rem;
+          }
+
+          .photography-intro h1 {
+            max-width: 14ch;
+          }
+
+          .photography-collections {
+            margin-bottom: 4rem;
+          }
+        }
+      `}</style>
     </main>
   );
 }

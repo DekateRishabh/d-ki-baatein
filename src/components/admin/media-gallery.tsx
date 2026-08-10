@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { deleteMedia } from "@/lib/admin/media-actions";
+import styles from "./media-gallery.module.css";
 
 type MediaItem = {
   id: string;
@@ -56,7 +57,7 @@ export default function MediaGallery({ media }: { media: MediaItem[] }) {
 
   return (
     <>
-      <div className="media-gallery-controls">
+      <div className={styles.controls}>
         <input
           type="search"
           value={query}
@@ -79,10 +80,10 @@ export default function MediaGallery({ media }: { media: MediaItem[] }) {
       </div>
 
       {filteredMedia.length ? (
-        <div className="media-gallery-grid">
+        <div className={styles.grid}>
           {filteredMedia.map((item) => (
-            <article className="media-gallery-card" key={item.id}>
-              <div className="media-gallery-preview">
+            <article className={styles.card} key={item.id}>
+              <div className={styles.preview}>
                 {item.kind === "image" && item.public_url ? (
                   <img
                     src={item.public_url}
@@ -92,14 +93,14 @@ export default function MediaGallery({ media }: { media: MediaItem[] }) {
                   <span>{item.kind}</span>
                 )}
               </div>
-              <div className="media-gallery-card-body">
+              <div className={styles.cardBody}>
                 <p className="section-label">
                   {item.kind} · {item.is_public ? "public" : "private"}
                 </p>
                 <h2 title={item.filename}>{item.filename}</h2>
                 <p>{item.caption ?? item.mime_type ?? "No caption"}</p>
                 <small>{formatSize(item.size_bytes)} · {formatDate(item.created_at)}</small>
-                <div className="media-gallery-actions">
+                <div className={styles.actions}>
                   <Link href={`/admin/media/${item.id}/edit`}>Edit</Link>
                   <button
                     type="button"
@@ -117,7 +118,7 @@ export default function MediaGallery({ media }: { media: MediaItem[] }) {
           ))}
         </div>
       ) : (
-        <p className="media-gallery-empty">No matching media found.</p>
+        <p className={styles.empty}>No matching media found.</p>
       )}
     </>
   );

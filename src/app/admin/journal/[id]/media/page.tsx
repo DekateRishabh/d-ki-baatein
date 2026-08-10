@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import styles from "./journal-media-picker.module.css";
 
 async function saveJournalMedia(journalEntryId: string, formData: FormData) {
   "use server";
@@ -44,20 +45,27 @@ export default async function JournalMediaPage({
   const { id } = await params;
   const supabase = await createClient();
 
-  const [{ data: entry, error: entryError }, { data: media, error: mediaError }, { data: attached, error: attachedError }] =
-    await Promise.all([
-      supabase.from("journal_entries").select("id, title, slug").eq("id", id).single(),
-      supabase
-        .from("media_assets")
-        .select("id, filename, public_url, alt_text, caption, created_at")
-        .eq("kind", "image")
-        .order("created_at", { ascending: false }),
-      supabase
-        .from("journal_entry_media")
-        .select("media_id, sort_order, caption")
-        .eq("journal_entry_id", id)
-        .order("sort_order", { ascending: true }),
-    ]);
+  const [
+    { data: entry, error: entryError },
+    { data: media, error: mediaError },
+    { data: attached, error: attachedError },
+  ] = await Promise.all([
+    supabase
+      .from("journal_entries")
+      .select("id, title, slug")
+      .eq("id", id)
+      .single(),
+    supabase
+      .from("media_assets")
+      .select("id, filename, public_url, alt_text, caption, created_at")
+      .eq("kind", "image")
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("journal_entry_media")
+      .select("media_id, sort_order, caption")
+      .eq("journal_entry_id", id)
+      .order("sort_order", { ascending: true }),
+  ]);
 
   if (entryError || !entry || mediaError || attachedError) notFound();
 
@@ -75,47 +83,56 @@ export default async function JournalMediaPage({
         <Link href={`/admin/journal/${id}/edit`}>Back to Journal editor</Link>
       </header>
 
-      <form action={saveMedia} className="journal-media-picker">
-        <div className="journal-media-picker-grid">
+      <form action={saveMedia} className={styles.picker}>
+        <div className={styles.grid}>
           {(media ?? []).map((item) => {
             const current = attachedById.get(item.id);
             return (
-              <label className="journal-media-picker-card" key={item.id}>
-                <input
-                  type="checkbox"
-                  name="media_ids"
-                  value={item.id}
-                  defaultChecked={Boolean(current)}
-                />
-                <div className="journal-media-picker-preview">
+              <label className={styles.card} key={item.id}>
+                <div className={styles.cardHeader}>
+                  <span className={styles.title} title={item.alt_text ?? item.filename}>
+                    {item.alt_text ?? item.filename}
+                  </span>
+                  <input
+                    className={styles.checkbox}
+                    type="checkbox"
+                    name="media_ids"
+                    value={item.id}
+                    defaultChecked={Boolean(current)}
+                    aria-label={`Select ${item.filename}`}
+                  />
+                </div>
+                <div className={styles.preview}>
                   {item.public_url ? (
                     <img src={item.public_url} alt={item.alt_text ?? item.filename} />
                   ) : (
                     <span>No preview</span>
                   )}
                 </div>
-                <strong>{item.alt_text ?? item.filename}</strong>
-                <small>{item.filename}</small>
-                <input
-                  name={`sort_${item.id}`}
-                  type="number"
-                  min="0"
-                  defaultValue={current?.sort_order ?? 0}
-                  aria-label={`Order for ${item.filename}`}
-                />
-                <textarea
-                  name={`caption_${item.id}`}
-                  defaultValue={current?.caption ?? ""}
-                  rows={2}
-                  placeholder="Caption for this Journal image"
-                  aria-label={`Caption for ${item.filename}`}
-                />
+                <small className={styles.filename}>{item.filename}</small>
+                <div className={styles.fields}>
+                  <input
+                    name={`sort_${item.id}`}
+                    type="number"
+                    min="0"
+                    defaultValue={current?.sort_order ?? 0}
+                    aria-label={`Order for ${item.filename}`}
+                    placeholder="Order"
+                  />
+                  <textarea
+                    name={`caption_${item.id}`}
+                    defaultValue={current?.caption ?? ""}
+                    rows={2}
+                    placeholder="Caption for this Journal image"
+                    aria-label={`Caption for ${item.filename}`}
+                  />
+                </div>
               </label>
             );
           })}
         </div>
 
-        <div className="admin-form-actions">
+        <div className={styles.actions}>
           <button type="submit">Save Journal photos</button>
           <Link href={`/admin/journal/${id}/edit`}>Cancel</Link>
         </div>

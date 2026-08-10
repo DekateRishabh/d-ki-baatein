@@ -18,6 +18,7 @@ export default async function PhotographyPage({ searchParams }: PhotographyPageP
   const filteredPhotographs = activeCollection
     ? photographs.filter((photograph) => photograph.tags.includes(activeCollection.slug))
     : photographs;
+  const browserCollections = collections.map((collection) => collection.title);
 
   return (
     <main className="photography-page">
@@ -50,7 +51,7 @@ export default async function PhotographyPage({ searchParams }: PhotographyPageP
         </p>
       )}
 
-      <PhotographyBrowser photographs={filteredPhotographs} collections={collections} />
+      <PhotographyBrowser photographs={filteredPhotographs} collections={browserCollections} />
     </main>
   );
 }

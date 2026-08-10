@@ -23,17 +23,6 @@ export type PublicPhotographyCollection = {
   description: string;
 };
 
-function normalizePublicUrl(value: string) {
-  const trimmed = value.trim();
-  if (trimmed.startsWith("/https://") || trimmed.startsWith("/http://")) {
-    return trimmed.slice(1);
-  }
-  if (trimmed.startsWith("https://") || trimmed.startsWith("http://") || trimmed.startsWith("/")) {
-    return trimmed;
-  }
-  return `/${trimmed}`;
-}
-
 function slugify(value: string) {
   return value
     .toLowerCase()
@@ -84,7 +73,7 @@ export async function getPublicPhotographyData() {
             slug,
             title,
             description: item.caption ?? media.caption ?? "",
-            src: normalizePublicUrl(media.public_url),
+            src: media.public_url,
             alt: media.alt_text ?? media.filename,
             collection: collection.title,
             location: media.location ?? collection.location ?? "",

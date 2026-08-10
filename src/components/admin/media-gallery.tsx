@@ -50,7 +50,8 @@ export default function MediaGallery({ media }: { media: MediaItem[] }) {
       const matchesQuery =
         !normalizedQuery ||
         item.filename.toLowerCase().includes(normalizedQuery) ||
-        item.caption?.toLowerCase().includes(normalizedQuery);
+        item.caption?.toLowerCase().includes(normalizedQuery) ||
+        item.alt_text?.toLowerCase().includes(normalizedQuery);
       return matchesKind && matchesQuery;
     });
   }, [kind, media, query]);
@@ -80,7 +81,7 @@ export default function MediaGallery({ media }: { media: MediaItem[] }) {
       </div>
 
       {filteredMedia.length ? (
-        <div className={styles.grid}>
+        <div className={styles.grid} data-count={filteredMedia.length}>
           {filteredMedia.map((item) => (
             <article className={styles.card} key={item.id}>
               <div className={styles.preview}>
@@ -97,9 +98,8 @@ export default function MediaGallery({ media }: { media: MediaItem[] }) {
                 <p className="section-label">
                   {item.kind} · {item.is_public ? "public" : "private"}
                 </p>
-                <h2 title={item.filename}>{item.filename}</h2>
+                <p>{item.alt_text ? `Alt: ${item.alt_text}` : "Alt: Not set"}</p>
                 <p>{item.caption ?? item.mime_type ?? "No caption"}</p>
-                <small>Alt: {item.alt_text ?? "Not set"}</small>
                 <small>{formatSize(item.size_bytes)} · {formatDate(item.created_at)}</small>
                 <div className={styles.actions}>
                   <Link href={`/admin/media/${item.id}/edit`}>Edit</Link>

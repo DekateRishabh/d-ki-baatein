@@ -1,23 +1,23 @@
 .picker {
   display: grid;
-  gap: 24px;
+  gap: 16px;
   max-width: 1180px;
-  margin-top: 28px;
+  margin-top: 14px;
 }
 
 .grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
+  gap: 14px;
 }
 
 .card {
   display: grid;
-  gap: 10px;
+  gap: 8px;
   min-width: 0;
-  padding: 12px;
+  padding: 10px;
   border: 1px solid var(--border, #d4cec5);
-  border-radius: 16px;
+  border-radius: 14px;
   background: rgba(255, 255, 255, 0.42);
   cursor: pointer;
 }
@@ -31,13 +31,15 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 8px;
   min-width: 0;
+  min-height: 26px;
 }
 
 .checkbox {
-  width: 18px;
-  height: 18px;
+  flex: 0 0 auto;
+  width: 15px;
+  height: 15px;
   margin: 0;
   accent-color: var(--ink, #171717);
   cursor: pointer;
@@ -46,7 +48,7 @@
 .preview {
   overflow: hidden;
   aspect-ratio: 16 / 10;
-  border-radius: 11px;
+  border-radius: 10px;
   background: var(--paper-deep, #e8e1d8);
 }
 
@@ -69,10 +71,11 @@
 }
 
 .title {
+  min-width: 0;
   overflow: hidden;
   color: var(--ink, #171717);
   font-family: var(--font-cormorant, Georgia, serif);
-  font-size: 23px;
+  font-size: 20px;
   font-weight: 600;
   line-height: 1.05;
   text-overflow: ellipsis;
@@ -84,14 +87,16 @@
   color: var(--ink-soft, #6f6a64);
   font-family: var(--font-plex-mono, monospace);
   font-size: 10px;
+  line-height: 1.2;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .fields {
   display: grid;
-  grid-template-columns: 76px minmax(0, 1fr);
+  grid-template-columns: 64px minmax(0, 1fr);
   gap: 8px;
+  align-items: start;
 }
 
 .fields input,
@@ -100,10 +105,14 @@
   box-sizing: border-box;
   border: 1px solid var(--border, #d4cec5);
   border-radius: 8px;
-  padding: 9px 10px;
+  padding: 8px 9px;
   background: rgba(255, 255, 255, 0.65);
   color: var(--ink, #171717);
   font: inherit;
+}
+
+.fields input {
+  height: 58px;
 }
 
 .fields textarea {
@@ -114,8 +123,8 @@
 .actions {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding-top: 4px;
+  gap: 10px;
+  padding-top: 2px;
 }
 
 .actions button,
@@ -123,8 +132,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 38px;
-  padding: 0 15px;
+  min-height: 36px;
+  padding: 0 14px;
   border: 1px solid var(--ink, #171717);
   border-radius: 6px;
   background: var(--ink, #171717);
@@ -153,5 +162,9 @@
 
   .fields {
     grid-template-columns: 1fr;
+  }
+
+  .fields input {
+    height: auto;
   }
 }

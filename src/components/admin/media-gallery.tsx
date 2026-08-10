@@ -99,6 +99,7 @@ export default function MediaGallery({ media }: { media: MediaItem[] }) {
                 </p>
                 <h2 title={item.filename}>{item.filename}</h2>
                 <p>{item.caption ?? item.mime_type ?? "No caption"}</p>
+                <small>Alt: {item.alt_text ?? "Not set"}</small>
                 <small>{formatSize(item.size_bytes)} · {formatDate(item.created_at)}</small>
                 <div className={styles.actions}>
                   <Link href={`/admin/media/${item.id}/edit`}>Edit</Link>

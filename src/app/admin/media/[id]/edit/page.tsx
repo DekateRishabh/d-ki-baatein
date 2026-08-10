@@ -36,15 +36,16 @@ async function updateMedia(id: string, formData: FormData) {
 export default async function EditMediaPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const { id } = await params;
   const supabase = await createClient();
   const { data: media, error } = await supabase
     .from("media_assets")
     .select(
       "id, filename, kind, mime_type, public_url, caption, alt_text, is_public",
     )
-    .eq("id", params.id)
+    .eq("id", id)
     .single();
 
   if (error || !media) notFound();

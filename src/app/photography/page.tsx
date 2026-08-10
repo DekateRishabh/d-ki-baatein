@@ -1,11 +1,6 @@
 import type { Metadata } from "next";
-
 import { PhotographyBrowser } from "@/components/photography/photography-browser";
-import {
-  getPhotographyCollections,
-  photographyCollections,
-  photographs,
-} from "@/lib/photography";
+import { getPublicPhotographyData } from "@/lib/photography-data";
 
 export const metadata: Metadata = {
   title: "Photography",
@@ -13,16 +8,14 @@ export const metadata: Metadata = {
     "Photographs of ordinary light, places, people, and moments worth noticing.",
 };
 
-export default function PhotographyPage() {
-  const collections = getPhotographyCollections();
+export default async function PhotographyPage() {
+  const { collections, photographs } = await getPublicPhotographyData();
 
   return (
     <main className="photography-page">
       <header className="photography-intro">
         <p className="section-label">Photography archive</p>
-
         <h1>Ordinary light, noticed slowly.</h1>
-
         <p>
           A collection of photographs from journeys, familiar rooms, quiet
           afternoons, and places that stayed in memory.
@@ -40,15 +33,13 @@ export default function PhotographyPage() {
         </div>
 
         <div className="photography-collection-list">
-          {photographyCollections.map((collection) => (
+          {collections.map((collection) => (
             <article
               key={collection.slug}
               className="photography-collection-card"
             >
               <p className="section-label">{collection.title}</p>
-
               <h2 id="collections-title">{collection.title}</h2>
-
               <p>{collection.description}</p>
             </article>
           ))}

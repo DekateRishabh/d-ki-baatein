@@ -1,17 +1,110 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { deleteMedia, updateMedia } from "@/lib/admin/media-actions";
 
-type Props = { params: Promise<{ id: string }> };
+async function updateMedia(id: string, formData: FormData) {
+  "use server";
 
-export default async function EditMediaPage({ params }: Props) {
-  const { id } = await params;
+  const filename = String(formData.get("filename") ?? "").trim();
+  const kind = String(formData.get("kind") ?? "image").trim();
+  const caption = String(formData.get("caption") ?? "").trim();
+  const altText = String(formData.get("alt_text") ?? "").trim();
+  const isPublic = formData.get("is_public") === "on";
+
+  if (!filename) throw new Error("Filename is required.");
+
   const supabase = await createClient();
-  const { data: item, error } = await supabase.from("media_assets").select("id, storage_path, filename, kind, mime_type, size_bytes, public_url, caption, alt_text, is_public").eq("id", id).maybeSingle();
+  const { error } = await supabase
+    .from("media_assets")
+    .update({
+      filename,
+      kind,
+      caption: caption || null,
+      alt_text: altText || null,
+      is_public: isPublic,
+    })
+    .eq("id", id);
+
   if (error) throw new Error(error.message);
-  if (!item) notFound();
-  const update = updateMedia.bind(null, id);
-  const remove = deleteMedia.bind(null, id, item.storage_path);
-  return <section className="admin-content"><header className="archive-intro"><p className="section-label">Media · {item.kind}</p><h1>Edit media</h1><p>{item.filename} · {item.mime_type ?? "unknown type"}</p></header>{item.kind === "image" && item.public_url && <img src={item.public_url} alt={item.alt_text ?? item.filename} style={{ maxWidth: "min(100%, 720px)", height: "auto" }} />}<form action={update} className="admin-form"><label>Alt text<input name="alt_text" defaultValue={item.alt_text ?? ""} /></label><label>Caption<input name="caption" defaultValue={item.caption ?? ""} /></label><label><input name="is_public" type="checkbox" defaultChecked={item.is_public} /> Public media</label><div><button type="submit">Save metadata</button><Link href="/admin/media">Back</Link></div></form><form action={remove}><button type="submit">Delete media</button></form></section>;
+
+  revalidatePath("/admin/media");
+  revalidatePath(`/admin/media/${id}/edit`);
+  redirect("/admin/media");
+}
+
+export default async function EditMediaPage({
+  params,
+}: {
+  params: { id: string };
+}) {
+  const supabase = await createClient();
+  const { data: media, error } = await supabase
+    .from("media_assets")
+    .select(
+      "id, filename, kind, mime_type, public_url, caption, alt_text, is_public",
+    )
+    .eq("id", params.id)
+    .single();
+
+  if (error || !media) notFound();
+
+  const saveMedia = updateMedia.bind(null, media.id);
+
+  return (
+    <section className="admin-content">
+      <header className="archive-intro">
+        <p className="section-label">Media library</p>
+        <h1>Edit media</h1>
+        <p>Update the metadata used across your private archive and public site.</p>
+      </header>
+
+      <form action={saveMedia} className="admin-form">
+        {media.public_url ? (
+          <div className="media-edit-preview">
+            <img src={media.public_url} alt={media.alt_text ?? media.filename} />
+          </div>
+        ) : null}
+
+        <label>
+          Filename
+          <input name="filename" defaultValue={media.filename} required />
+        </label>
+
+        <label>
+          Media type
+          <select name="kind" defaultValue={media.kind}>
+            <option value="image">Image</option>
+            <option value="document">Document</option>
+            <option value="audio">Audio</option>
+            <option value="video">Video</option>
+          </select>
+        </label>
+
+        <label>
+          Caption
+          <textarea name="caption" defaultValue={media.caption ?? ""} rows={4} />
+        </label>
+
+        <label>
+          Alt text
+          <input name="alt_text" defaultValue={media.alt_text ?? ""} />
+        </label>
+
+        <label className="admin-form-checkbox">
+          <input
+            type="checkbox"
+            name="is_public"
+            defaultChecked={media.is_public}
+          />
+          Publicly visible
+        </label>
+
+        <div className="admin-form-actions">
+          <button type="submit">Save changes</button>
+          <Link href="/admin/media">Cancel</Link>
+        </div>
+      </form>
+    </section>
+  );
 }

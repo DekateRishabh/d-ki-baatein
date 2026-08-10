@@ -9,6 +9,7 @@ type Media = {
   filename: string;
   public_url: string | null;
   alt_text: string | null;
+  caption: string | null;
 };
 
 type Item = {
@@ -28,10 +29,6 @@ type Collection = {
   status: string;
   photo_collection_items: Item[];
 };
-
-function mediaFromItem(item: Item) {
-  return Array.isArray(item.media_assets) ? item.media_assets[0] : item.media_assets;
-}
 
 function slugify(value: string) {
   return value.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
@@ -102,7 +99,7 @@ export default async function PhotographyAdminPage() {
   const supabase = await requireAdmin();
   const [{ data: collections }, { data: media }] = await Promise.all([
     supabase.from("photo_collections").select("id, slug, title, description, location, collection_date, status, photo_collection_items(media_id, sort_order, caption, media_assets(id, filename, public_url, alt_text))").order("created_at", { ascending: false }),
-    supabase.from("media_assets").select("id, filename, public_url, alt_text").eq("kind", "image").order("created_at", { ascending: false }),
+    supabase.from("media_assets").select("id, filename, public_url, alt_text, caption").eq("kind", "image").order("created_at", { ascending: false }),
   ]);
 
   const typedCollections = (collections ?? []) as Collection[];

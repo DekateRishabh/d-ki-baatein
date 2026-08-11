@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
-import { photographs } from "@/lib/photography";
 import { getPublicPhotographyContent } from "@/lib/photography-supabase";
 
 export const metadata: Metadata = {
@@ -139,6 +138,7 @@ export default async function PhotographyPage() {
 
         .photography-index-card-copy h2 {
           margin: 0.25rem 0 0;
+          font-family: var(--font-cormorant), Georgia, serif;
           font-size: clamp(1.6rem, 3vw, 2.3rem);
         }
 

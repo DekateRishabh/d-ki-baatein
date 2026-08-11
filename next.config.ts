@@ -5,6 +5,12 @@ const withMDX = createMDX({
   extension: /\.mdx?$/,
 });
 
-const nextConfig: NextConfig = {};
+const nextConfig: NextConfig = {
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "10mb",
+    },
+  },
+};
 
 export default withMDX(nextConfig);

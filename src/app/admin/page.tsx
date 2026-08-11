@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 
 async function signOut() {
@@ -12,9 +13,7 @@ export default async function AdminDashboardPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  if (!user) {
-    redirect("/admin/login");
-  }
+  if (!user) redirect("/admin/login");
 
   const { data: profile } = await supabase
     .from("profiles")
@@ -35,6 +34,7 @@ export default async function AdminDashboardPage() {
           <a href="/admin">Dashboard</a>
           <a href="/admin/essays">Essays</a>
           <a href="/admin/journal">Journal</a>
+          <a href="/admin/photography">Photography</a>
           <a href="/admin/media">Media</a>
           <a href="/admin/settings">Settings</a>
         </nav>
@@ -53,6 +53,7 @@ export default async function AdminDashboardPage() {
         <div className="admin-dashboard-grid">
           <a href="/admin/essays">Manage essays</a>
           <a href="/admin/journal">Manage journal</a>
+          <a href="/admin/photography">Manage photography</a>
           <a href="/admin/media">Open media library</a>
         </div>
       </section>
